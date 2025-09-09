@@ -1,0 +1,114 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="./output.css" rel="stylesheet">
+</head>
+
+
+<body class=" bg-gradient-to-t from-gray-700 via-gray-900 to-black ">
+  <h1 class="font-bold text-5xl text-white p-2">Todoo..</h1>
+  <div class="min-h-screen flex items-center justify-center">
+  <!--container-->
+  <div class=" bg-gray-900 p-8 rounder-lg shadow-md w-full max-w-md hover:text-white border-white ">
+
+<h1 class="text-3xl font-bold md-6 text-center text-white">to-do List</h1>
+
+<div class="mb-4">
+
+  <input id="todoInput" placeholder="Add a new text" class="w-full px-3 py-2 font-bold text-white rounder-md focus:outline-none focus:ring-2 focus:ring-black">
+
+</div>
+<!--add task button-->
+<button id="addTodo" class="w-full bg-gray-400 text-white py-2 rounder-md hover:bg-gray-800 transition duration-300 mb-6">Add Task</button>
+<!--creating ul-->
+<ul id="todoList" class="space-y-2"></ul>
+</div>
+
+</div>
+<!--javascript-->
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const todoInput = document.getElementById("todoInput");
+  const addTodoBtn = document.getElementById("addTodo");
+  const todoList = document.getElementById("todoList");
+
+  const todos = JSON.parse(localStorage.getItem("todos")) || [];
+
+  function saveTodos() {
+    localStorage.setItem("todos", JSON.stringify(todos));
+  }
+
+  function renderTodos() {
+    todoList.innerHTML = "";
+    todos.forEach((todo, index) => {
+      const li = document.createElement("li");
+      li.className = "flex items-center justify-between bg-gray-400 p-3 rounded-md shadow-sm";
+
+      li.innerHTML = `
+        <div class='flex items-center space-x-2'>
+          <input type="checkbox" class="todo-checkbox h-5 w-5 text-blue-500" ${todo.completed ? "checked" : ""}>
+          <span class="todo-text ${todo.completed ? "line-through text-black" : "text-black"}">${todo.text}</span>
+        </div>
+        <div class="space-x-2">
+          <button class="edit-btn text-blue-900">Edit</button>
+          <button class="delete-btn text-red-700">Delete</button>
+        </div>
+      `;
+
+      // Handle checkbox toggle
+      const checkbox = li.querySelector(".todo-checkbox");
+      checkbox.addEventListener("change", () => {
+        todo.completed = checkbox.checked;
+        saveTodos();
+        renderTodos();
+      });
+
+      // Edit button
+      const editBtn = li.querySelector(".edit-btn");
+      editBtn.addEventListener("click", () => {
+        const newText = prompt("Edit task:", todo.text);
+        if (newText !== null) {
+          todo.text = newText.trim();
+          saveTodos();
+          renderTodos();
+        }
+      });
+
+      // Delete button
+      const deleteBtn = li.querySelector(".delete-btn");
+      deleteBtn.addEventListener("click", () => {
+        todos.splice(index, 1);
+        saveTodos();
+        renderTodos();
+      });
+
+      todoList.appendChild(li);
+    });
+  }
+
+  // Add new todo
+  addTodoBtn.addEventListener("click", () => {
+    const text = todoInput.value.trim();
+    if (text) {
+      todos.push({ text, completed: false });
+      todoInput.value = "";
+      saveTodos();
+      renderTodos();
+    }
+  });
+
+  // Add on enter key
+  todoInput.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") {
+      addTodoBtn.click();
+    }
+  });
+
+  renderTodos();
+});
+
+</script>
+</body>
+</html>
